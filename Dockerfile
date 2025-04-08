@@ -5,5 +5,7 @@ RUN mkdir /root/.ssh
 WORKDIR /app
 COPY ./src .
 COPY ./keys /root/.ssh
+RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
+RUN ssh-keyscan codeberg.org >> /root/.ssh/known_hosts
 RUN deno cache main.ts
-CMD ["deno", "run", "--allow-net", "--watch", "./main.ts"]
+CMD ["deno", "run", "-A", "--watch", "./main.ts"]

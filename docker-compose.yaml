@@ -5,7 +5,7 @@ services:
     build: .
     container_name: deno-container
     ports:
-      - "4000:8000"
+      - "4000:80"
     volumes:
       - ./src:/app
     restart: unless-stopped
