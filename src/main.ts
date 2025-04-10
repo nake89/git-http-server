@@ -3,11 +3,28 @@ import { run } from './util.ts';
 
 const router = new Router();
 
-router.get('/', async (ctx) => {
+router.get("/", (ctx) => {
+  ctx.response.body = 'hello win98';
+});
+
+router.post('/file', async (ctx) => {
+  const formData = await ctx.request.body.formData();
+  formData.forEach((value) => {
+    const file = value as File;
+    console.log(file.name);
+    console.log(file.name);
+    console.log(file.name);
+    const fileData = file.stream();
+    Deno.writeFile(file.name, fileData);
+  });
+  ctx.response.body = 'files uploaded';
+});
+
+router.get('/clone', async (ctx) => {
   console.log('GET REQUEST');
 
-  const asd = await testSsh();
-  console.log(asd)
+  // const asd = await testSsh();
+  // console.log(asd)
   let res = '';
   const { code, stdout, stderr } = await run('git', [
     'clone',
