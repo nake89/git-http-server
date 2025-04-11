@@ -58,7 +58,7 @@ router.post("/init", async (ctx) => {
   }
 
   const repo = git({
-    cwd: `${pathPrefix}/${gitDirName}/${username}`,
+    cwd,
     config: { user: { name: username, email: email } },
   });
   await repo.init();
@@ -75,12 +75,48 @@ router.post("/add", async (ctx) => {
   const {files, dirName} = await ctx.request.body.json();
   const cwd = `${pathPrefix}/${gitDirName}/${username}/${dirName}`;
   const repo = git({
-    cwd: `${pathPrefix}/${gitDirName}/${username}/${dirName}`,
+    cwd,
     config: { user: { name: username, email: email } },
   });
   for (const file of files) {
     await repo.index.add(file);
   }
+  ctx.response.body = { ok: 1 };
+});
+
+router.post("/commit", async (ctx) => {
+  const token = ctx.response.headers.get("X-Auth-Token");
+  if (!token) {
+    ctx.response.body = { ok: 0, error: "No token" };
+    return;
+  }
+  const username = getUsername(token);
+  const email = getEmail(token);
+  const { message, dirName } = await ctx.request.body.json();
+  const cwd = `${pathPrefix}/${gitDirName}/${username}/${dirName}`;
+  const repo = git({
+    cwd,
+    config: { user: { name: username, email: email } },
+  });
+  await repo.commits.create(message);
+  ctx.response.body = { ok: 1 };
+});
+
+router.post("/push", async (ctx) => {
+  const token = ctx.response.headers.get("X-Auth-Token");
+  if (!token) {
+    ctx.response.body = { ok: 0, error: "No token" };
+    return;
+  }
+  const username = getUsername(token);
+  const email = getEmail(token);
+  const { dirName } = await ctx.request.body.json();
+  const cwd = `${pathPrefix}/${gitDirName}/${username}/${dirName}`;
+  const repo = git({
+    cwd,
+    config: { user: { name: username, email: email } },
+  });
+  await repo.commits.push();
   ctx.response.body = { ok: 1 };
 });
 
